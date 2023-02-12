@@ -17,15 +17,12 @@ open_quizz_db_data = (
     ("Bande dessinnée", "Tintin", "https://www.kiwime.com/oqdb/files/2124242395/OpenQuizzDB_124/openquizzdb_124.json"),
     ("Cinéma", "Alien", "https://www.codeavecjonathan.com/res/mission/openquizzdb_241.json"),
     ("Cinéma", "Star wars", "https://www.codeavecjonathan.com/res/mission/openquizzdb_90.json"),
-)
-
-
-
+    ("Insectes", "Abeilles", "https://www.kiwime.com/oqdb/files/3237399872/OpenQuizzDB_237/openquizzdb_237.json"),
+    )
 
 # FONCTION QUI REMPLACE LES ACCENTS PAR DES CARACTERES SANS ACCENTS
 def strip_accents(s):
     return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
-
 
 # FONCTION DE CREATION DU NOM DE FICHIER JSON
 def get_quizz_filename(categorie, titre, difficulte):
@@ -99,6 +96,7 @@ def quizz_creation_and_format(quizz_dictionary):
         quizz.append(Question(title, choice_list, answer))
     return quizz
 
+# Fonction pour montrer à l'utilisateur les fichiers json disponibles dans le répertoire
 def show_json_files_in_directory(path_to_json):
     json_files = [pos_json for pos_json in os.listdir(path_to_json) if pos_json.endswith('.json')]
     print("Voici la liste des questionnaire disponibles : ")
@@ -106,6 +104,7 @@ def show_json_files_in_directory(path_to_json):
         print(str(i+1), json_files[i])
     return json_files
 
+# Fonction pour demande le choix du questionnaire à l'utilisateur
 def ask_which_quizz_to_do(min, max):
     print("Quel questionnaire souhaiteriez-vous effectuer ?")
     quizz_nb_choice_str = input("Veuillez choisir son numéro entre " + str(min) + " et " + str(max) + ") : ")
@@ -118,39 +117,21 @@ def ask_which_quizz_to_do(min, max):
         print("ERREUR : Veuillez rentrer uniquement des chiffres")
     return ask_which_quizz_to_do(min, max) # fonction récursive tant que l'utilisateur n'a pas fait un choix correct
 
+
+# PROGRAMME DU QUESTIONNAIRE
 # Pour chaque questionnaire dans la liste
 for quizz_data in open_quizz_db_data:
     generate_json_file(quizz_data[0], quizz_data[1], quizz_data[2]) # création du fichier json correspond au dictionnaire
-
 # Gestion du titre des questionnaire passés depuis la console
 try:
     filename = sys.argv[1]
-except:
-    # besoin de mettre en flexible CAR EN DUR
-    path_to_json = '/Users/alejandramt/Desktop/mission' # A TRAITER
-    #filename = "cinema_starwars_expert.json"
+except: # et sinon, proposition et choix parmi les questionnaires disponibles
+    path_to_json = os.getcwd() # récupération du répertoire actuel
     json_files = show_json_files_in_directory(path_to_json)
     quizz_nb = ask_which_quizz_to_do(1, len(json_files))
     filename = json_files[quizz_nb-1]
     print(filename)
-
-
-
-quizz_dictionary = get_quizz_data_from_json_file(filename)
-show_quizz_info(quizz_dictionary)
-quizz = quizz_creation_and_format(quizz_dictionary)
-
-# Lancement du questionnaire
-Questionnaire(quizz).lancer()
-
-
-# MISSION
-# Questionnaire
-#   Fonctionne avec les fichiers JSON
-#   Pouvoir donner un fichier en entrée, par exemple :
-#   python questionnaire.py chats.json
-
-# Qualité / autres développeurs
-#   Soumettre le code dans GIT régulièrement
-#       Créer un repo git et faire des commit à chaque ajout de nouvelle fonctionnalité
-#   Commenter le code
+quizz_dictionary = get_quizz_data_from_json_file(filename) # récupération du dictionnaire du quizz
+show_quizz_info(quizz_dictionary) # montrer les informations sur le quizz sélectionné
+quizz = quizz_creation_and_format(quizz_dictionary) # récupération du questionnaire formaté dans l'ordre pour le lancer
+Questionnaire(quizz).lancer() # Lancement du questionnaire

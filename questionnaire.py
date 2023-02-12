@@ -46,11 +46,14 @@ class Questionnaire:
 
     def lancer(self):
         score = 0
+        reponses = "bonne réponse"
         total_questions = len(self.questions)
         for i in range(0, total_questions):
             if self.questions[i].poser(i+1, total_questions): # passage du numéro de la question et du nombre total de question à la fonction poser pour affichage
                 score += 1
-        print("Score final :", score, "sur", len(self.questions))
+        if score > 1:
+            reponses = "bonnes réponses"
+        print("Score final :", score, reponses, "sur", len(self.questions), "questions.")
         return score
 
 
