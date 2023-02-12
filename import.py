@@ -33,30 +33,37 @@ def get_quizz_filename(categorie, titre, difficulte):
 def generate_json_file(categorie, titre, url):
     out_questionnaire_data = {"categorie": categorie, "titre": titre, "questions": []} # CREATION DU DICTIONNAIRE CONTENANT LE QUESTIONNAIRE
     out_questions_data = []
-    response = requests.get(url) # récupération du contenu de la page au format binaire
-    data = json.loads(response.text) # désérialisation
-    all_quizz = data["quizz"]["fr"] # Récupération des données à utilisées > stockée dans le quizz français
-    for quizz_title, quizz_data in all_quizz.items():
-        out_filename = get_quizz_filename(categorie, titre, quizz_title) # Création du titre du quizz - quizz title correspond à la difficulté
-        #DEBUG print(out_filename)
-        out_questionnaire_data["difficulte"] = quizz_title # ajout de la difficulté au clef du dictionnaire
+    try: # Gestion du cas d'erreur de requête
+        response = requests.get(url) # récupération du contenu de la page au format binaire
+    except: # Gestion du cas d'erreur de requête
+        print("Exception pour la requête d'url :", url)
+    else: # Exécution de la suite du code
+        try: # Gestion du cas d'erreur de data
+            data = json.loads(response.text) # désérialisation
+            all_quizz = data["quizz"]["fr"] # Récupération des données à utilisées > stockée dans le quizz français
+            for quizz_title, quizz_data in all_quizz.items():
+                out_filename = get_quizz_filename(categorie, titre, quizz_title) # Création du titre du quizz - quizz title correspond à la difficulté
+                #DEBUG print(out_filename)
+                out_questionnaire_data["difficulte"] = quizz_title # ajout de la difficulté au clef du dictionnaire
 
-        for question in quizz_data: # pour chaque question création d'un dictionnaire qui contiendra les questions et réponses proposées
-            question_dict = {} 
-            question_dict["titre"] = question["question"]
-            question_dict["choix"] = []
+                for question in quizz_data: # pour chaque question création d'un dictionnaire qui contiendra les questions et réponses proposées
+                    question_dict = {} 
+                    question_dict["titre"] = question["question"]
+                    question_dict["choix"] = []
 
-            for ch in question["propositions"]: 
-                question_dict["choix"].append((ch, ch==question["réponse"])) # pour chaque proposition, création et ajout d'un tuple qui contient la proposition et si elle est juste
+                    for ch in question["propositions"]: 
+                        question_dict["choix"].append((ch, ch==question["réponse"])) # pour chaque proposition, création et ajout d'un tuple qui contient la proposition et si elle est juste
 
-            out_questions_data.append(question_dict) # ajout de la question et réponse dans la data vide
-        out_questionnaire_data["questions"] = out_questions_data # ajout de la question au questionnaire
-        out_json = json.dumps(out_questionnaire_data) # sérialisation
-        # Rédaction du fichier json
-        file = open(out_filename, "w")
-        file.write(out_json)
-        file.close()
-        #DEBUG print("end")
+                    out_questions_data.append(question_dict) # ajout de la question et réponse dans la data vide
+                out_questionnaire_data["questions"] = out_questions_data # ajout de la question au questionnaire
+                out_json = json.dumps(out_questionnaire_data) # sérialisation
+                # Rédaction du fichier json
+                file = open(out_filename, "w")
+                file.write(out_json)
+                file.close()
+                #DEBUG print("end")
+        except: # Gestion du cas d'erreur de data
+            print("Exception data pour l'url :", url, "correspondant au questionnaire :", titre) # affichage de l'url et le questionnaire qui provoquent une erreur
 
 # FONCTION POUR OBTENIR LA DATA DU QUESTIONNAIRE
 def get_quizz_data_from_json_file(filename):
@@ -135,3 +142,29 @@ quizz_dictionary = get_quizz_data_from_json_file(filename) # récupération du d
 show_quizz_info(quizz_dictionary) # montrer les informations sur le quizz sélectionné
 quizz = quizz_creation_and_format(quizz_dictionary) # récupération du questionnaire formaté dans l'ordre pour le lancer
 Questionnaire(quizz).lancer() # Lancement du questionnaire
+
+# RESUME
+# try-except-finally
+try:
+    # essayer le bout de code du try
+    pass
+except:
+    # s'il ne fonctionne pas
+    # exécuteur le bout de code de l'except
+    pass
+finally:
+    # peut importe si cela marche ou non
+    # exécuter le bout de code du finally
+    pass
+# try-except-else
+try:
+    # essayer le bout de code du try
+    pass
+except:
+    # s'il ne fonctionne pas
+    # exécuteur le bout de code de l'except
+    pass
+else:
+    # uniquement si le try marche
+    # exécuter le bout de code du else
+    pass
