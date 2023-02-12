@@ -59,13 +59,12 @@ def generate_json_file(categorie, titre, url):
         file.close()
         #DEBUG print("end")
 
-# FONCTION POUR OBTENIR LA DATA DU QUESITONNAIRE
+# FONCTION POUR OBTENIR LA DATA DU QUESTIONNAIRE
 def get_quizz_data_from_json_file(filename):
     file = open(filename, "r") # ouverture du fichier en mode lecture
     data = file.read() # les datas sont au format JSON
     file.close()
     quizz = json.loads(data)
-    #DEBUG print(quizz)
     return quizz # pour désérialiser les data
 
     data = fil
@@ -89,14 +88,13 @@ def quizz_creation_and_format(quizz_dictionary):
         title = quizz_dictionary["questions"][i]["titre"]
         choice_list = []
         answer = ""
+        # récupération des choix proposés
         for j in range(0, len(quizz_dictionary["questions"][i]["choix"])):
             choice_list.append(quizz_dictionary["questions"][i]["choix"][j][0])
-            if quizz_dictionary["questions"][i]["choix"][j][1]:
-                answer = quizz_dictionary["questions"][i]["choix"][j][0]
+            if quizz_dictionary["questions"][i]["choix"][j][1]: # si le choix est le bon
+                answer = quizz_dictionary["questions"][i]["choix"][j][0] # il deviendra la réponse
         quizz.append(Question(title, choice_list, answer))
-    print(quizz[1])
     return quizz
-
 
 # Pour chaque questionnaire dans la liste
 for quizz_data in open_quizz_db_data:
@@ -107,6 +105,7 @@ quizz_dictionary = get_quizz_data_from_json_file("cinema_starwars_expert.json")
 show_quizz_info(quizz_dictionary)
 quizz = quizz_creation_and_format(quizz_dictionary)
 
+# Lancement du questionnaire
 Questionnaire(quizz).lancer()
 
 
