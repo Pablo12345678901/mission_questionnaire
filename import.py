@@ -125,46 +125,21 @@ def ask_which_quizz_to_do(min, max):
     return ask_which_quizz_to_do(min, max) # fonction récursive tant que l'utilisateur n'a pas fait un choix correct
 
 
-# PROGRAMME DU QUESTIONNAIRE
-# Pour chaque questionnaire dans la liste
-for quizz_data in open_quizz_db_data:
-    generate_json_file(quizz_data[0], quizz_data[1], quizz_data[2]) # création du fichier json correspond au dictionnaire
-# Gestion du titre des questionnaire passés depuis la console
-try:
-    filename = sys.argv[1]
-except: # et sinon, proposition et choix parmi les questionnaires disponibles
-    path_to_json = os.getcwd() # récupération du répertoire actuel
-    json_files = show_json_files_in_directory(path_to_json)
-    quizz_nb = ask_which_quizz_to_do(1, len(json_files))
-    filename = json_files[quizz_nb-1]
-    print(filename)
-quizz_dictionary = get_quizz_data_from_json_file(filename) # récupération du dictionnaire du quizz
-show_quizz_info(quizz_dictionary) # montrer les informations sur le quizz sélectionné
-quizz = quizz_creation_and_format(quizz_dictionary) # récupération du questionnaire formaté dans l'ordre pour le lancer
-Questionnaire(quizz).lancer() # Lancement du questionnaire
-
-# RESUME
-# try-except-finally
-try:
-    # essayer le bout de code du try
-    pass
-except:
-    # s'il ne fonctionne pas
-    # exécuteur le bout de code de l'except
-    pass
-finally:
-    # peut importe si cela marche ou non
-    # exécuter le bout de code du finally
-    pass
-# try-except-else
-try:
-    # essayer le bout de code du try
-    pass
-except:
-    # s'il ne fonctionne pas
-    # exécuteur le bout de code de l'except
-    pass
-else:
-    # uniquement si le try marche
-    # exécuter le bout de code du else
-    pass
+if __name__ == "__main__":
+    # PROGRAMME DU QUESTIONNAIRE
+    # Pour chaque questionnaire dans la liste
+    for quizz_data in open_quizz_db_data:
+        generate_json_file(quizz_data[0], quizz_data[1], quizz_data[2]) # création du fichier json correspond au dictionnaire
+    # Gestion du titre des questionnaire passés depuis la console
+    try:
+        filename = sys.argv[1]
+    except: # et sinon, proposition et choix parmi les questionnaires disponibles
+        path_to_json = os.getcwd() # récupération du répertoire actuel
+        json_files = show_json_files_in_directory(path_to_json)
+        quizz_nb = ask_which_quizz_to_do(1, len(json_files))
+        filename = json_files[quizz_nb-1]
+        print(filename)
+    quizz_dictionary = get_quizz_data_from_json_file(filename) # récupération du dictionnaire du quizz
+    show_quizz_info(quizz_dictionary) # montrer les informations sur le quizz sélectionné
+    quizz = quizz_creation_and_format(quizz_dictionary) # récupération du questionnaire formaté dans l'ordre pour le lancer
+    Questionnaire(quizz).lancer() # Lancement du questionnaire
