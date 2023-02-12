@@ -2,6 +2,8 @@ import requests
 import json
 import unicodedata
 
+from questionnaire import Questionnaire, Question
+
 # ====> REMARQUE : Les Url ci-dessous sont différentes que celles affichées dans la vidéo.
 # C'est normal, continuez bien avec les url de ce fichier
 
@@ -15,29 +17,15 @@ open_quizz_db_data = (
     ("Cinéma", "Star wars", "https://www.codeavecjonathan.com/res/mission/openquizzdb_90.json"),
 )
 
-# MISSION
-# Refaire fonctionner le script d'import
-# Questionnaire
-#   Fonctionne avec les fichiers JSON
-#   Pouvoir donner un fichier en entrée, par exemple :
-#   python questionnaire.py chats.json
-# Affichier aussi
-#   Le titre du questionnaire
-#   La catégorie, la difficulté
-#   Le nombre total de questions
-#   Pour chaque question, afficher le numéro de la question. Exemple :  question n°1/20
-# Qualité / autres développeurs
-#   Soumettre le code dans GIT régulièrement
-#       Créer un repo git et faire des commit à chaque ajout de nouvelle fonctionnalité
-#   Commenter le code
 
 
-# A ETUDIER
+
+# FONCTION QUI REMPLACE LES ACCENTS PAR DES CARACTERES SANS ACCENTS
 def strip_accents(s):
     return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
 
 
-# FONCTION D'OBTENTION DU NOM DE FICHIER JSON SUR BASE DE LA CATEGORIE, TITRE ET NIVEAU DIFFICULTE
+# FONCTION DE CREATION DU NOM DE FICHIER JSON
 def get_quizz_filename(categorie, titre, difficulte):
     return strip_accents(categorie).lower().replace(" ", "") + "_" + strip_accents(titre).lower().replace(" ", "") + "_" + strip_accents(difficulte).lower().replace(" ", "") + ".json"
 
@@ -51,7 +39,7 @@ def generate_json_file(categorie, titre, url):
     all_quizz = data["quizz"]["fr"] # Récupération des données à utilisées > stockée dans le quizz français
     for quizz_title, quizz_data in all_quizz.items():
         out_filename = get_quizz_filename(categorie, titre, quizz_title) # Création du titre du quizz - quizz title correspond à la difficulté
-        print(out_filename)
+        #DEBUG print(out_filename)
         out_questionnaire_data["difficulte"] = quizz_title # ajout de la difficulté au clef du dictionnaire
 
         for question in quizz_data: # pour chaque question création d'un dictionnaire qui contiendra les questions et réponses proposées
@@ -69,10 +57,73 @@ def generate_json_file(categorie, titre, url):
         file = open(out_filename, "w")
         file.write(out_json)
         file.close()
-        print("end")
+        #DEBUG print("end")
+
+# FONCTION POUR OBTENIR LA DATA DU QUESITONNAIRE
+def get_quizz_data_from_json_file(filename):
+    file = open(filename, "r") # ouverture du fichier en mode lecture
+    data = file.read() # les datas sont au format JSON
+    file.close()
+    quizz = json.loads(data)
+    #DEBUG print(quizz)
+    return quizz # pour désérialiser les data
+
+    data = fil
+    quizz = json.loads(name)
+    print(quizz)
+
+# Affichage des informations du questionnaire
+def show_quizz_info(quizz_dictionary):
+    print() # esthétique pour la console
+    print("Vous avez choisi le questionnaire suivant : ")
+    print("Titre : "+ quizz_dictionary["titre"])
+    print("Catégorie : "+ quizz_dictionary["categorie"])
+    print("Difficulté : "+ quizz_dictionary["difficulte"])
+    print("Nombre total de questions : " + str(len(quizz_dictionary["questions"])))
+    print() # esthétique pour la console
+
+# Création du quizz à partir de la data
+def quizz_creation_and_format(quizz_dictionary):
+    quizz = []
+    for i in range(0, len(quizz_dictionary["questions"])):
+        title = quizz_dictionary["questions"][i]["titre"]
+        choice_list = []
+        answer = ""
+        for j in range(0, len(quizz_dictionary["questions"][i]["choix"])):
+            choice_list.append(quizz_dictionary["questions"][i]["choix"][j][0])
+            if quizz_dictionary["questions"][i]["choix"][j][1]:
+                answer = quizz_dictionary["questions"][i]["choix"][j][0]
+        quizz.append(Question(title, choice_list, answer))
+    print(quizz[1])
+    return quizz
 
 
 # Pour chaque questionnaire dans la liste
 for quizz_data in open_quizz_db_data:
     generate_json_file(quizz_data[0], quizz_data[1], quizz_data[2]) # création du fichier json correspond au dictionnaire
 
+
+quizz_dictionary = get_quizz_data_from_json_file("cinema_starwars_expert.json")
+show_quizz_info(quizz_dictionary)
+quizz = quizz_creation_and_format(quizz_dictionary)
+
+Questionnaire(quizz).lancer()
+
+
+# MISSION
+# Questionnaire
+#   Fonctionne avec les fichiers JSON
+#   Pouvoir donner un fichier en entrée, par exemple :
+#   python questionnaire.py chats.json
+
+# Affichier aussi
+#   Le titre du questionnaire
+#   La catégorie, la difficulté
+#   Le nombre total de questions
+
+#   Pour chaque question, afficher le numéro de la question. Exemple :  question n°1/20
+
+# Qualité / autres développeurs
+#   Soumettre le code dans GIT régulièrement
+#       Créer un repo git et faire des commit à chaque ajout de nouvelle fonctionnalité
+#   Commenter le code
