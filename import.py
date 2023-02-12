@@ -1,6 +1,8 @@
 import requests
 import json
 import unicodedata
+import sys # gestion de la récupération du nom de fichier json entrée depuis la command line (terminal)
+import os, json # gestion de la récupération des noms de fichiers json du répertoire
 
 from questionnaire import Questionnaire, Question
 
@@ -75,6 +77,7 @@ def get_quizz_data_from_json_file(filename):
 def show_quizz_info(quizz_dictionary):
     print() # esthétique pour la console
     print("Vous avez choisi le questionnaire suivant : ")
+    print() # esthétique pour la console
     print("Titre : "+ quizz_dictionary["titre"])
     print("Catégorie : "+ quizz_dictionary["categorie"])
     print("Difficulté : "+ quizz_dictionary["difficulte"])
@@ -96,12 +99,44 @@ def quizz_creation_and_format(quizz_dictionary):
         quizz.append(Question(title, choice_list, answer))
     return quizz
 
+def show_json_files_in_directory(path_to_json):
+    json_files = [pos_json for pos_json in os.listdir(path_to_json) if pos_json.endswith('.json')]
+    print("Voici la liste des questionnaire disponibles : ")
+    for i in range(0, len(json_files)):
+        print(str(i+1), json_files[i])
+    return json_files
+
+def ask_which_quizz_to_do(min, max):
+    print("Quel questionnaire souhaiteriez-vous effectuer ?")
+    quizz_nb_choice_str = input("Veuillez choisir son numéro entre " + str(min) + " et " + str(max) + ") : ")
+    try:
+        quizz_nb_choice_int = int(quizz_nb_choice_str)
+        if min <= quizz_nb_choice_int <= max:
+            return quizz_nb_choice_int
+        print("ERREUR : Vous devez rentrer un nombre entre", min, "et", max)
+    except:
+        print("ERREUR : Veuillez rentrer uniquement des chiffres")
+    return ask_which_quizz_to_do(min, max) # fonction récursive tant que l'utilisateur n'a pas fait un choix correct
+
 # Pour chaque questionnaire dans la liste
 for quizz_data in open_quizz_db_data:
     generate_json_file(quizz_data[0], quizz_data[1], quizz_data[2]) # création du fichier json correspond au dictionnaire
 
+# Gestion du titre des questionnaire passés depuis la console
+try:
+    filename = sys.argv[1]
+except:
+    # besoin de mettre en flexible CAR EN DUR
+    path_to_json = '/Users/alejandramt/Desktop/mission' # A TRAITER
+    #filename = "cinema_starwars_expert.json"
+    json_files = show_json_files_in_directory(path_to_json)
+    quizz_nb = ask_which_quizz_to_do(1, len(json_files))
+    filename = json_files[quizz_nb-1]
+    print(filename)
 
-quizz_dictionary = get_quizz_data_from_json_file("cinema_starwars_expert.json")
+
+
+quizz_dictionary = get_quizz_data_from_json_file(filename)
 show_quizz_info(quizz_dictionary)
 quizz = quizz_creation_and_format(quizz_dictionary)
 
@@ -114,13 +149,6 @@ Questionnaire(quizz).lancer()
 #   Fonctionne avec les fichiers JSON
 #   Pouvoir donner un fichier en entrée, par exemple :
 #   python questionnaire.py chats.json
-
-# Affichier aussi
-#   Le titre du questionnaire
-#   La catégorie, la difficulté
-#   Le nombre total de questions
-
-#   Pour chaque question, afficher le numéro de la question. Exemple :  question n°1/20
 
 # Qualité / autres développeurs
 #   Soumettre le code dans GIT régulièrement
